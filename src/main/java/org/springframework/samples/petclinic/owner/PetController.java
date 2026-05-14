@@ -49,6 +49,8 @@ class PetController {
 
 	private static final String VIEWS_PETS_CREATE_OR_UPDATE_FORM = "pets/createOrUpdatePetForm";
 
+	private static final String OWNER_NOT_FOUND_MSG = "Owner not found with id: ";
+
 	private final OwnerRepository owners;
 
 	private final PetTypeRepository types;
@@ -67,7 +69,7 @@ class PetController {
 	public Owner findOwner(@PathVariable("ownerId") int ownerId) {
 		Optional<Owner> optionalOwner = this.owners.findById(ownerId);
 		return optionalOwner.orElseThrow(() -> new IllegalArgumentException(
-				"Owner not found with id: " + ownerId + ". Please ensure the ID is correct "));
+				OWNER_NOT_FOUND_MSG + ownerId + ". Please ensure the ID is correct "));
 	}
 
 	@ModelAttribute("pet")
@@ -80,7 +82,7 @@ class PetController {
 
 		Optional<Owner> optionalOwner = this.owners.findById(ownerId);
 		Owner owner = optionalOwner.orElseThrow(() -> new IllegalArgumentException(
-				"Owner not found with id: " + ownerId + ". Please ensure the ID is correct "));
+				OWNER_NOT_FOUND_MSG + ownerId + ". Please ensure the ID is correct "));
 		return owner.getPet(petId);
 	}
 

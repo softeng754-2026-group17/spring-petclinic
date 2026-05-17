@@ -27,6 +27,9 @@ import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.ResponseBody;
 
 /**
+ * Handles HTTP requests for displaying {@link Vet} information, supporting both a
+ * paginated HTML list view and a JSON resource endpoint.
+ *
  * @author Juergen Hoeller
  * @author Mark Fisher
  * @author Ken Krebs
@@ -37,10 +40,20 @@ class VetController {
 
 	private final VetRepository vetRepository;
 
+	/**
+	 * Creates a new {@code VetController} backed by the given vet repository.
+	 * @param vetRepository the repository used to retrieve {@link Vet} data
+	 */
 	public VetController(VetRepository vetRepository) {
 		this.vetRepository = vetRepository;
 	}
 
+	/**
+	 * Displays a paginated HTML list of all veterinarians.
+	 * @param page the 1-based page number to display; defaults to {@code 1}
+	 * @param model the model to populate with pagination and vet list attributes
+	 * @return the logical view name for the vet list page
+	 */
 	@GetMapping("/vets.html")
 	public String showVetList(@RequestParam(defaultValue = "1") int page, Model model) {
 		// Here we are returning an object of type 'Vets' rather than a collection of Vet
@@ -51,6 +64,13 @@ class VetController {
 		return addPaginationModel(page, paginated, model);
 	}
 
+	/**
+	 * Adds pagination-related attributes to the model for the vet list view.
+	 * @param page the current 1-based page number
+	 * @param paginated the paginated result containing vets for the current page
+	 * @param model the model to populate
+	 * @return the logical view name for the vet list page
+	 */
 	private String addPaginationModel(int page, Page<Vet> paginated, Model model) {
 		List<Vet> listVets = paginated.getContent();
 		model.addAttribute("currentPage", page);
@@ -60,12 +80,22 @@ class VetController {
 		return "vets/vetList";
 	}
 
+	/**
+	 * Retrieves a page of vets for the given 1-based page number, using a fixed page
+	 * size of 5.
+	 * @param page the 1-based page number to retrieve
+	 * @return a {@link Page} of {@link Vet}s for the requested page
+	 */
 	private Page<Vet> findPaginated(int page) {
 		int pageSize = 5;
 		Pageable pageable = PageRequest.of(page - 1, pageSize);
 		return vetRepository.findAll(pageable);
 	}
 
+	/**
+	 * Returns all veterinarians as a JSON response body.
+	 * @return a {@link Vets} wrapper containing all {@link Vet} instances
+	 */
 	@GetMapping({ "/vets" })
 	public @ResponseBody Vets showResourcesVetList() {
 		// Here we are returning an object of type 'Vets' rather than a collection of Vet
